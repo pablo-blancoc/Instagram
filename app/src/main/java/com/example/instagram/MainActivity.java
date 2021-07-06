@@ -13,7 +13,13 @@ import android.widget.Toast;
 
 import androidx.appcompat.widget.Toolbar;
 
+import com.parse.FindCallback;
+import com.parse.ParseException;
+import com.parse.ParseQuery;
 import com.parse.ParseUser;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -23,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
     // Attributes
     private Toolbar toolbar;
     private MenuItem loading;
+    List<Post> posts;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +40,9 @@ public class MainActivity extends AppCompatActivity {
         this.toolbar = (Toolbar) findViewById(R.id.toolbar);
         this.toolbar.setTitle("Instagram");
         setSupportActionBar(this.toolbar);
+
+        // Instantiate array of posts
+        this.posts = new ArrayList<>();
 
     }
 
@@ -77,5 +87,31 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, "An error ocurred", Toast.LENGTH_SHORT).show();
             Log.e(TAG, "Could not log out");
         }
+    }
+
+    /**
+     * Functions that retrieves posts from Parse database
+     */
+    private void queryPosts() {
+
+        // Create a query
+        ParseQuery<Post> query = ParseQuery.getQuery(Post.class);
+        query.include(Post.KEY_USER);
+
+        // Execute in background thread to find all list of objects
+        query.findInBackground(new FindCallback<Post>() {
+            @Override
+            public void done(List<Post> _posts, ParseException e) {
+                if( e != null ) {
+                    // Error has ocurred
+                    Log.e(TAG, "Error while retrieving posts", e);
+                    Toast.makeText(MainActivity.this, "Could not retrieve posts", Toast.LENGTH_SHORT).show();
+                    return;
+                } else {
+                    // Add all posts to our data array
+                    posts.addAll(_posts);
+                }
+            }
+        });
     }
 }
