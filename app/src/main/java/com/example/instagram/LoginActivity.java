@@ -12,8 +12,8 @@ import android.widget.TextView;
 public class LoginActivity extends AppCompatActivity {
 
     public static final String TAG = "LoginActivity";
-    private TextView tvUsername;
-    private TextView tvPassword;
+    private EditText etUsername;
+    private EditText etPassword;
     private Button btnLogin;
 
     @Override
@@ -22,14 +22,14 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
 
         // Find items on View and add OnClickListener on Login Button pressed
-        this.tvUsername = findViewById(R.id.tvUsername);
-        this.tvPassword = findViewById(R.id.tvPassword);
+        this.etUsername = findViewById(R.id.etUsername);
+        this.etPassword = findViewById(R.id.etPassword);
         this.btnLogin = findViewById(R.id.btnLogin);
         this.btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String username = tvUsername.getText().toString();
-                String password = tvPassword.getText().toString();
+                String username = etUsername.getText().toString();
+                String password = etPassword.getText().toString();
                 login(username, password);
             }
         });
