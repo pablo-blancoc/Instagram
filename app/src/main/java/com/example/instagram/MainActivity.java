@@ -55,6 +55,9 @@ public class MainActivity extends AppCompatActivity {
         if( id == R.id.logout ) {
             this.onLogout();
             return true;
+        } else if( id == R.id.post ) {
+            Intent intent = new Intent(MainActivity.this, PostActivity.class);
+            startActivity(intent);
         }
 
         return super.onOptionsItemSelected(item);

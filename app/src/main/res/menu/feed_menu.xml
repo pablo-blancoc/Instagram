@@ -10,9 +10,16 @@
         app:actionLayout="@layout/loading" />
 
     <item
-        android:id="@+id/logout"
+        android:id="@+id/post"
         app:showAsAction="never"
         android:actionLayout="@layout/activity_main"
         android:orderInCategory="100"
+        android:title="@string/make_a_post" />
+
+    <item
+        android:id="@+id/logout"
+        app:showAsAction="never"
+        android:actionLayout="@layout/activity_main"
+        android:orderInCategory="200"
         android:title="@string/logout" />
 </menu>
