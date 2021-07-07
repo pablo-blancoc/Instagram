@@ -14,6 +14,7 @@ import android.widget.Toast;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.bumptech.glide.util.ViewPreloadSizeProvider;
 import com.parse.FindCallback;
@@ -34,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
     private MenuItem loading;
     private RecyclerView rvFeed;
     private PostsAdapter adapter;
+    private SwipeRefreshLayout swipeContainer;
     List<Post> posts;
 
     @Override
@@ -54,6 +56,21 @@ public class MainActivity extends AppCompatActivity {
         this.adapter = new PostsAdapter(this, this.posts);
         this.rvFeed.setAdapter(this.adapter);
         this.rvFeed.setLayoutManager(new LinearLayoutManager(this));
+
+        // Set up swipeContainer
+        this.swipeContainer = findViewById(R.id.swipeContainer);
+        swipeContainer.setColorSchemeResources(android.R.color.holo_blue_bright,
+                android.R.color.holo_green_light,
+                android.R.color.holo_orange_light,
+                android.R.color.holo_red_light);
+        this.swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                posts.clear();
+                queryPosts();
+                swipeContainer.setRefreshing(false);
+            }
+        });
     }
 
     @Override
