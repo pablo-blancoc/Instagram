@@ -7,6 +7,6 @@
     <string name="loading">Loading...</string>
     <string name="make_a_post">New post</string>
     <string name="post_description">Post description</string>
-    <string name="add_image">Add image</string>
+    <string name="add_image">Take photo</string>
     <string name="post">POST</string>
 </resources>
