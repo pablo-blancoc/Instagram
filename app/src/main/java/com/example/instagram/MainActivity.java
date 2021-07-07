@@ -12,6 +12,7 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.parse.FindCallback;
 import com.parse.ParseException;
@@ -29,12 +30,16 @@ public class MainActivity extends AppCompatActivity {
     // Attributes
     private Toolbar toolbar;
     private MenuItem loading;
+    private RecyclerView rvFeed;
     List<Post> posts;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // Find items from View
+        this.rvFeed = findViewById(R.id.rvFeed);
 
         // Setup toolbar
         this.toolbar = (Toolbar) findViewById(R.id.toolbar);
