@@ -12,8 +12,10 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.util.ViewPreloadSizeProvider;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
@@ -31,15 +33,13 @@ public class MainActivity extends AppCompatActivity {
     private Toolbar toolbar;
     private MenuItem loading;
     private RecyclerView rvFeed;
+    private PostsAdapter adapter;
     List<Post> posts;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        // Find items from View
-        this.rvFeed = findViewById(R.id.rvFeed);
 
         // Setup toolbar
         this.toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -49,6 +49,11 @@ public class MainActivity extends AppCompatActivity {
         // Instantiate array of posts
         this.posts = new ArrayList<>();
 
+        // Find items from View
+        this.rvFeed = findViewById(R.id.rvFeed);
+        this.adapter = new PostsAdapter(this, this.posts);
+        this.rvFeed.setAdapter(this.adapter);
+        this.rvFeed.setLayoutManager(new LinearLayoutManager(this));
     }
 
     @Override
@@ -60,6 +65,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         loading = menu.findItem(R.id.progressBar);
+
+        // Move queryPosts() here so that loading was found in View before it is called
+        //  to show that the app is loading
+        queryPosts();
         return super.onPrepareOptionsMenu(menu);
     }
 
@@ -99,14 +108,26 @@ public class MainActivity extends AppCompatActivity {
      */
     private void queryPosts() {
 
-        // Create a query
+        this.loading.setVisible(true);
+
+        // Create a query of Posts
         ParseQuery<Post> query = ParseQuery.getQuery(Post.class);
+
+        // Include User data of each post
         query.include(Post.KEY_USER);
+
+        // Set limit of posts to retrieve
+        query.setLimit(20);
+
+        // Order them by descending order
+        query.orderByDescending("createdAt");
 
         // Execute in background thread to find all list of objects
         query.findInBackground(new FindCallback<Post>() {
             @Override
             public void done(List<Post> _posts, ParseException e) {
+                loading.setVisible(false);
+
                 if( e != null ) {
                     // Error has ocurred
                     Log.e(TAG, "Error while retrieving posts", e);
@@ -115,6 +136,7 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     // Add all posts to our data array
                     posts.addAll(_posts);
+                    adapter.notifyDataSetChanged();
                 }
             }
         });
