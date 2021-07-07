@@ -24,11 +24,13 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.parse.ParseException;
+import com.parse.ParseFile;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
@@ -50,10 +52,12 @@ public class PostActivity extends AppCompatActivity {
     PreviewView pvImage;
     Button btnPost;
     Button btnAddImage;
+    ProgressBar loading;
     ImageView ivImage;
     ImageCapture imageCapture;
     File outputDirectory;
     ExecutorService cameraExecutor;
+    File image;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,18 +70,27 @@ public class PostActivity extends AppCompatActivity {
         this.btnPost = findViewById(R.id.btnPost);
         this.pvImage = findViewById(R.id.pvImage);
         this.ivImage = findViewById(R.id.ivImage);
+        this.loading = findViewById(R.id.loading);
 
         // Listener to submit the post
         this.btnPost.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                btnPost.setVisibility(View.GONE);
+                loading.setVisibility(View.VISIBLE);
+
                 String description = etDescription.getText().toString();
                 if(description.isEmpty()) {
                     Toast.makeText(PostActivity.this, "Description can't be empty", Toast.LENGTH_SHORT).show();
                     return;
                 }
+                if(image == null || ivImage.getDrawable() == null) {
+                    Toast.makeText(PostActivity.this, "You need to take an image", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 ParseUser user = ParseUser.getCurrentUser();
-                post(user, description);
+                post(user, description, image);
             }
         });
 
@@ -141,6 +154,9 @@ public class PostActivity extends AppCompatActivity {
                 pvImage.setVisibility(View.GONE);
                 ivImage.setVisibility(View.VISIBLE);
 
+                // Save image into File variable
+                image = new File(savedUri.getPath());
+
                 // Load image with Glide
                 Glide.with(PostActivity.this)
                         .load(new File(savedUri.getPath()))
@@ -181,7 +197,7 @@ public class PostActivity extends AppCompatActivity {
                 try {
                     cameraProvider = processCameraProvider.get();
                 } catch (Exception e) {
-
+                    Log.e(TAG, "Exception on enableCamera", e);
                 }
 
                 // set up preview window
@@ -228,18 +244,32 @@ public class PostActivity extends AppCompatActivity {
      * @param user: ParseUser that makes the post
      * @param description: The description that must be included in the post
      */
-    private void post(ParseUser user, String description) {
+    private void post(ParseUser user, String description, File image) {
         Post post = new Post();
         post.setDescription(description);
         post.setUser(user);
+        post.setImage(new ParseFile(image));
         post.saveInBackground(new SaveCallback() {
             @Override
             public void done(ParseException e) {
+                btnPost.setVisibility(View.VISIBLE);
+                loading.setVisibility(View.GONE);
+
                 if( e != null ) {
                     Log.e(TAG, "Error while saving", e);
                     Toast.makeText(PostActivity.this, "Could not save the post", Toast.LENGTH_SHORT).show();
+
+
                 } else {
+                    Toast.makeText(PostActivity.this, "Nice post!", Toast.LENGTH_SHORT).show();
                     etDescription.setText("");
+                    ivImage.setImageResource(0);
+                    ivImage.setVisibility(View.GONE);
+                    btnAddImage.setVisibility(View.VISIBLE);
+                    pvImage.setVisibility(View.VISIBLE);
+                    Intent intent = new Intent(PostActivity.this, MainActivity.class);
+                    startActivity(intent);
+                    finish();
                 }
             }
         });
