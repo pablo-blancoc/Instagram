@@ -1,6 +1,7 @@
 package com.example.instagram;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -72,6 +73,30 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
                         .error(R.drawable.error)
                         .into(ivImage);
             }
+
+            // Listeners to go to PostDetail
+            this.ivImage.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    onDetail(post.getObjectId());
+                }
+            });
+            this.tvDescription.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    onDetail(post.getObjectId());
+                }
+            });
+        }
+
+        /**
+         * Sends the postId to DetailActivity so that we can show the complete information of a post
+         * @param post: The post we want to show on DetailActivity
+         */
+        private void onDetail(String post) {
+            Intent intent = new Intent(context, PostDetail.class);
+            intent.putExtra("postId", post);
+            context.startActivity(intent);
         }
     }
 }

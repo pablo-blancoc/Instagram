@@ -22,8 +22,8 @@
         android:id="@+id/ivImage"
         android:layout_width="match_parent"
         android:layout_height="300dp"
-        android:layout_below="@id/tvUserName"
         android:scaleType="centerCrop"
+        android:layout_below="@id/tvUserName"
         tools:srcCompat="@tools:sample/avatars" />
 
     <TextView

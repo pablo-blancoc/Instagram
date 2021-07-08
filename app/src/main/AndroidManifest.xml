@@ -5,7 +5,16 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.CAMERA" />
+
     <uses-feature android:name="android.hardware.camera.any" />
+
+    <queries>
+
+        <!-- Camera -->
+        <intent>
+            <action android:name="android.media.action.IMAGE_CAPTURE" />
+        </intent>
+    </queries>
 
     <application
         android:name=".ParseApplication"
@@ -15,7 +24,8 @@
         android:roundIcon="@drawable/icon"
         android:supportsRtl="true"
         android:theme="@style/Theme.Instagram">
-        <activity android:name=".PostActivity"></activity>
+        <activity android:name=".PostDetail"></activity>
+        <activity android:name=".PostActivity" />
 
         <meta-data
             android:name="com.parse.SERVER_URL"
@@ -36,12 +46,5 @@
         </activity>
         <activity android:name=".MainActivity" />
     </application>
-
-    <queries>
-        <!-- Camera -->
-        <intent>
-            <action android:name="android.media.action.IMAGE_CAPTURE" />
-        </intent>
-    </queries>
 
 </manifest>
