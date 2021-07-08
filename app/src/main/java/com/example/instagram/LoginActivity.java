@@ -12,8 +12,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.parse.LogInCallback;
+import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseUser;
+import com.parse.SignUpCallback;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -21,6 +23,7 @@ public class LoginActivity extends AppCompatActivity {
     private EditText etUsername;
     private EditText etPassword;
     private Button btnLogin;
+    private Button btnSignup;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,12 +39,22 @@ public class LoginActivity extends AppCompatActivity {
         this.etUsername = findViewById(R.id.etUsername);
         this.etPassword = findViewById(R.id.etPassword);
         this.btnLogin = findViewById(R.id.btnLogin);
+        this.btnSignup = findViewById(R.id.btnSignup);
+
         this.btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String username = etUsername.getText().toString();
                 String password = etPassword.getText().toString();
                 login(username, password);
+            }
+        });
+        this.btnSignup.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String username = etUsername.getText().toString();
+                String password = etPassword.getText().toString();
+                signup(username, password);
             }
         });
     }
@@ -66,6 +79,32 @@ public class LoginActivity extends AppCompatActivity {
                     // Logged in
                     goMainActivity();
                     Toast.makeText(LoginActivity.this, "Welcome again!", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
+    /**
+     * Signs up in the platform using credentials provided
+     * @param username: The username provided
+     * @param password: The password provided
+     */
+    private void signup(String username, String password) {
+
+        // User Parse built-in LogInInBackground so function is not executed on Main thread
+        ParseUser user = new ParseUser();
+        user.setUsername(username);
+        user.put("handle", username);
+        user.setPassword(password);
+        user.signUpInBackground(new SignUpCallback() {
+            @Override
+            public void done(ParseException e) {
+                if (e == null) {
+                    Toast.makeText(LoginActivity.this, "Welcome!", Toast.LENGTH_SHORT).show();
+                    login(username, password);
+                } else {
+                    Toast.makeText(LoginActivity.this, "Could not signup", Toast.LENGTH_SHORT).show();
+                    Log.e("LoginActivity", "Could not signup", e);
                 }
             }
         });
