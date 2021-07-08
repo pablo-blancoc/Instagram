@@ -51,6 +51,13 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
         private TextView tvUserName;
         private ImageView ivImage;
         private TextView tvDescription;
+        private TextView tvHandle;
+        private TextView tvLikeCount;
+        private ImageView ivUserProfile;
+        private ImageView btnLike;
+        private ImageView btnComment;
+        private ImageView btnShare;
+        private ImageView btnSave;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -59,12 +66,24 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
             this.ivImage = itemView.findViewById(R.id.ivImage);
             this.tvDescription = itemView.findViewById(R.id.tvDescription);
             this.tvUserName = itemView.findViewById(R.id.tvUserName);
+            this.tvHandle = itemView.findViewById(R.id.tvHandle);
+            this.tvLikeCount = itemView.findViewById(R.id.tvLikeCount);
+            this.ivUserProfile = itemView.findViewById(R.id.ivUserProfile);
+            this.btnLike = itemView.findViewById(R.id.btnLike);
+            this.btnComment = itemView.findViewById(R.id.btnComment);
+            this.btnShare = itemView.findViewById(R.id.btnShare);
+            this.btnSave = itemView.findViewById(R.id.btnSave);
         }
 
         public void bind(Post post) {
+
+
             // Bind the post data to the view elements
             tvDescription.setText(post.getDescription());
             tvUserName.setText(post.getUser().getUsername());
+            tvHandle.setText(String.format("@%s", post.getUser().get("handle").toString()));
+            tvLikeCount.setText(String.format("%d likes", post.getLikeCount()));
+            ParseFile profile = (ParseFile) post.getUser().get("picture");
             ParseFile image = post.getImage();
             if (image != null) {
                 Glide.with(context)
@@ -72,6 +91,19 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
                         .placeholder(R.drawable.placeholder)
                         .error(R.drawable.error)
                         .into(ivImage);
+            }
+            if (profile != null) {
+                Glide.with(context)
+                        .load(profile.getUrl())
+                        .placeholder(R.drawable.placeholder)
+                        .error(R.drawable.error)
+                        .circleCrop()
+                        .into(ivUserProfile);
+            } else {
+                Glide.with(context)
+                        .load(R.drawable.avatar)
+                        .circleCrop()
+                        .into(ivUserProfile);
             }
 
             // Listeners to go to PostDetail
