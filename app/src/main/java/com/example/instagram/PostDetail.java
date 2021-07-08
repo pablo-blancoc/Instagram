@@ -1,9 +1,11 @@
 package com.example.instagram;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -13,10 +15,15 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.parse.DeleteCallback;
 import com.parse.FindCallback;
+import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseFile;
+import com.parse.ParseObject;
 import com.parse.ParseQuery;
+import com.parse.ParseUser;
+import com.parse.SaveCallback;
 
 import java.util.Date;
 import java.util.List;
@@ -107,11 +114,111 @@ public class PostDetail extends AppCompatActivity {
     }
 
     private void bindInformation() {
-        // Set buttons color
-        this.btnLike.setColorFilter(Color.argb(255, 0, 0, 0));
+
+        Drawable liked = ContextCompat.getDrawable(PostDetail.this, R.drawable.ufi_heart_active);
+        Drawable unliked = ContextCompat.getDrawable(PostDetail.this, R.drawable.ufi_heart);
+
+        // Query into database if the post has been liked by the user
+        ParseQuery<ParseObject> query = ParseQuery.getQuery("Likes");
+        query.whereEqualTo("user", ParseUser.getCurrentUser());
+        query.whereEqualTo("post", post);
+        query.findInBackground(new FindCallback<ParseObject>() {
+            @Override
+            public void done(List<ParseObject> objects, ParseException e) {
+                if( e != null ) {
+                    Log.e("PostAdapter","Error while getting likes", e);
+                } else {
+                    if( objects.size() == 1 ) {
+                        post.liked = true;
+                        btnLike.setImageDrawable(liked);
+                        btnLike.setColorFilter(Color.argb(255, 255, 0, 0));
+                    } else {
+                        btnLike.setImageDrawable(unliked);
+                        btnLike.setColorFilter(Color.argb(255, 0, 0, 0));
+                        Log.d("XXX", "NOT LIKED");
+                    }
+                }
+            }
+        });
+
+        // Set buttons color and image
         this.btnComment.setColorFilter(Color.argb(255, 0, 0, 0));
         this.btnShare.setColorFilter(Color.argb(255, 0, 0, 0));
         this.btnSave.setColorFilter(Color.argb(255, 0, 0, 0));
+
+        // Add like clickListener
+        this.btnLike.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(post.liked) {
+                    // Delete current likes
+                    ParseQuery<ParseObject> query = ParseQuery.getQuery("Likes");
+                    query.whereEqualTo("user", ParseUser.getCurrentUser());
+                    query.whereEqualTo("post", post);
+                    query.findInBackground(new FindCallback<ParseObject>() {
+                        @Override
+                        public void done(List<ParseObject> objects, ParseException e) {
+                            if( e != null ) {
+                                Log.e("PostAdapter","Error while unliking", e);
+                            } else {
+                                for(ParseObject object: objects) {
+                                    object.deleteInBackground(new DeleteCallback() {
+                                        @Override
+                                        public void done(ParseException e) {
+                                            if( e != null ) {
+                                                Log.e("PostAdapter", "Problem unliking", e);
+                                            } else {
+                                                btnLike.setImageDrawable(unliked);
+                                                btnLike.setColorFilter(Color.argb(255, 0, 0, 0));
+                                            }
+                                        }
+                                    });
+                                }
+                            }
+                        }
+                    });
+
+                    // Update likecount
+                    post.setLikeCount(post.getLikeCount() - 1);
+
+                } else {
+                    post.setLikeCount(post.getLikeCount() + 1);
+                    // Add like object
+                    ParseObject like = new ParseObject("Likes");
+                    like.put("user", ParseUser.getCurrentUser());
+                    like.put("post", post);
+                    like.saveInBackground(new SaveCallback() {
+                        @Override
+                        public void done(ParseException e) {
+                            if( e != null ) {
+                                Log.e("PostsAdapter", "Problem liking", e);
+                            } else {
+                                btnLike.setImageDrawable(liked);
+                                btnLike.setColorFilter(Color.argb(255, 255, 0, 0));
+                            }
+                        }
+                    });
+                }
+                post.liked = !post.liked;
+                ParseQuery<ParseObject> query = ParseQuery.getQuery("Post");
+                query.getInBackground(post.getObjectId(), new GetCallback<ParseObject>() {
+                    @Override
+                    public void done(ParseObject object, ParseException e) {
+                        object.put(Post.KEY_LIKE_COUNT, post.getLikeCount());
+                        object.saveInBackground(new SaveCallback() {
+                            @Override
+                            public void done(ParseException e) {
+                                if(e == null) {
+                                    tvLikeCount.setText(String.format("%d likes", post.getLikeCount()));
+                                } else {
+                                    Log.e("PostAdapter", "Could not save likeCount", e);
+                                }
+                            }
+                        });
+                    }
+                });
+            }
+        });
 
         this.tvUserName.setText(this.post.getUser().getUsername());
         this.tvDescription.setText(this.post.getDescription());
