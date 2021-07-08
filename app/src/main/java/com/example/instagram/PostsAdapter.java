@@ -2,6 +2,7 @@ package com.example.instagram;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -76,6 +77,12 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
         }
 
         public void bind(Post post) {
+            // Set buttons color
+            this.btnLike.setColorFilter(Color.argb(255, 0, 0, 0));
+            this.btnComment.setColorFilter(Color.argb(255, 0, 0, 0));
+            this.btnShare.setColorFilter(Color.argb(255, 0, 0, 0));
+            this.btnSave.setColorFilter(Color.argb(255, 0, 0, 0));
+
 
 
             // Bind the post data to the view elements
