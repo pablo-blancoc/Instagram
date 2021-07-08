@@ -3,6 +3,7 @@ package com.example.instagram;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -14,6 +15,7 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.parse.FindCallback;
 import com.parse.ParseException;
+import com.parse.ParseFile;
 import com.parse.ParseQuery;
 
 import java.util.Date;
@@ -31,6 +33,13 @@ public class PostDetail extends AppCompatActivity {
     TextView tvTimestamp;
     ProgressBar loading;
     Post post;
+    private TextView tvHandle;
+    private TextView tvLikeCount;
+    private ImageView ivUserProfile;
+    private ImageView btnLike;
+    private ImageView btnComment;
+    private ImageView btnShare;
+    private ImageView btnSave;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +52,13 @@ public class PostDetail extends AppCompatActivity {
         this.tvTimestamp = findViewById(R.id.tvTimestamp);
         this.ivImage = findViewById(R.id.ivImage);
         this.loading = findViewById(R.id.loading);
+        this.tvHandle = findViewById(R.id.tvHandle);
+        this.tvLikeCount = findViewById(R.id.tvLikeCount);
+        this.ivUserProfile = findViewById(R.id.ivUserProfile);
+        this.btnLike = findViewById(R.id.btnLike);
+        this.btnComment = findViewById(R.id.btnComment);
+        this.btnShare = findViewById(R.id.btnShare);
+        this.btnSave = findViewById(R.id.btnSave);
 
 
         Intent intent = getIntent();
@@ -79,14 +95,7 @@ public class PostDetail extends AppCompatActivity {
                         finish();
                     } else {
                         post = posts.get(0);
-                        tvUserName.setText(post.getUser().getUsername());
-                        tvDescription.setText(post.getDescription());
-                        tvTimestamp.setText(getTimeAgo(post.getCreatedAt()));
-                        Glide.with(PostDetail.this)
-                                .load(post.getImage().getUrl())
-                                .placeholder(R.drawable.placeholder)
-                                .error(R.drawable.error)
-                                .into(ivImage);
+                        bindInformation();
                     }
                 } else {
                     Toast.makeText(PostDetail.this, "Error retrieving data", Toast.LENGTH_LONG).show();
@@ -95,24 +104,69 @@ public class PostDetail extends AppCompatActivity {
                 }
             }
         });
+    }
 
+    private void bindInformation() {
+        // Set buttons color
+        this.btnLike.setColorFilter(Color.argb(255, 0, 0, 0));
+        this.btnComment.setColorFilter(Color.argb(255, 0, 0, 0));
+        this.btnShare.setColorFilter(Color.argb(255, 0, 0, 0));
+        this.btnSave.setColorFilter(Color.argb(255, 0, 0, 0));
 
+        this.tvUserName.setText(this.post.getUser().getUsername());
+        this.tvDescription.setText(this.post.getDescription());
+        this.tvTimestamp.setText(getTimeAgo(this.post.getCreatedAt()));
+        this.tvHandle.setText(String.format("@%s", post.getUser().get("handle").toString()));
+        this.tvLikeCount.setText(String.format("%d likes", post.getLikeCount()));
+        Glide.with(PostDetail.this)
+                .load(this.post.getImage().getUrl())
+                .placeholder(R.drawable.placeholder)
+                .error(R.drawable.error)
+                .into(ivImage);
+        ParseFile profile = (ParseFile) post.getUser().get("picture");
+        if (profile != null) {
+            Glide.with(PostDetail.this)
+                    .load(profile.getUrl())
+                    .placeholder(R.drawable.placeholder)
+                    .error(R.drawable.error)
+                    .circleCrop()
+                    .into(ivUserProfile);
+        } else {
+            Glide.with(PostDetail.this)
+                    .load(R.drawable.avatar)
+                    .circleCrop()
+                    .into(ivUserProfile);
+        }
     }
 
     private void onStartLoading() {
-        this.loading.setVisibility(View.VISIBLE);
         this.tvUserName.setVisibility(View.GONE);
         this.tvDescription.setVisibility(View.GONE);
         this.tvTimestamp.setVisibility(View.GONE);
         this.ivImage.setVisibility(View.GONE);
+        this.loading.setVisibility(View.VISIBLE);
+        this.tvHandle.setVisibility(View.GONE);
+        this.tvLikeCount.setVisibility(View.GONE);
+        this.ivUserProfile.setVisibility(View.GONE);
+        this.btnLike.setVisibility(View.GONE);
+        this.btnComment.setVisibility(View.GONE);
+        this.btnShare.setVisibility(View.GONE);
+        this.btnSave.setVisibility(View.GONE);
     }
 
     private void onEndLoading() {
-        this.loading.setVisibility(View.GONE);
         this.tvUserName.setVisibility(View.VISIBLE);
         this.tvDescription.setVisibility(View.VISIBLE);
         this.tvTimestamp.setVisibility(View.VISIBLE);
         this.ivImage.setVisibility(View.VISIBLE);
+        this.loading.setVisibility(View.GONE);
+        this.tvHandle.setVisibility(View.VISIBLE);
+        this.tvLikeCount.setVisibility(View.VISIBLE);
+        this.ivUserProfile.setVisibility(View.VISIBLE);
+        this.btnLike.setVisibility(View.VISIBLE);
+        this.btnComment.setVisibility(View.VISIBLE);
+        this.btnShare.setVisibility(View.VISIBLE);
+        this.btnSave.setVisibility(View.VISIBLE);
     }
 
     private String getTimeAgo(Date createdAt) {
