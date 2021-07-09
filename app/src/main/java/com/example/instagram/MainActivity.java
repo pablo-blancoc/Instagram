@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Setup toolbar
         this.toolbar = (Toolbar) findViewById(R.id.toolbar);
-        this.toolbar.setTitle("Instagram");
+        this.toolbar.setTitle("");
         setSupportActionBar(this.toolbar);
 
         // Instantiate array of posts

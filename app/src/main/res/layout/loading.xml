@@ -6,6 +6,6 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:indeterminate="true"
-    android:progressTint="@color/white"
+    android:progressTint="@color/black"
     android:background="@android:color/transparent"
-    android:indeterminateTint="@color/white" />
+    android:indeterminateTint="@color/black" />

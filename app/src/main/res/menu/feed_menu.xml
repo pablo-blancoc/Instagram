@@ -1,20 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/post"
+        android:actionLayout="@layout/activity_main"
+        android:icon="@drawable/instagram_new_post_outline_24"
+        android:orderInCategory="200"
+        android:title="@string/make_a_post"
+        app:showAsAction="always" />
+
     <item
         android:id="@+id/progressBar"
         android:title="@string/loading"
         android:visible="false"
-        android:orderInCategory="200"
+        android:orderInCategory="100"
         app:showAsAction="ifRoom"
         app:actionLayout="@layout/loading" />
-
-    <item
-        android:id="@+id/post"
-        app:showAsAction="never"
-        android:actionLayout="@layout/activity_main"
-        android:orderInCategory="100"
-        android:title="@string/make_a_post" />
 
     <item
         android:id="@+id/logout"
