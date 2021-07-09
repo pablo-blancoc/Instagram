@@ -13,6 +13,7 @@ import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -76,6 +77,17 @@ public class ProfileActivity extends AppCompatActivity {
         this.rvPosts.setAdapter(this.adapter);
         this.rvPosts.setLayoutManager(new GridLayoutManager(ProfileActivity.this, 3));
 
+        // Create ClickListener to change profile picture
+        this.ivProfile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if( uid.equals(ParseUser.getCurrentUser().getObjectId()) ) {
+                    Intent intent = new Intent(ProfileActivity.this, PostActivity.class);
+                    intent.putExtra("code", 1);
+                    startActivity(intent);
+                }
+            }
+        });
     }
 
 

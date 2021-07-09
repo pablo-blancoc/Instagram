@@ -25,12 +25,15 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.parse.ParseException;
 import com.parse.ParseFile;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
@@ -57,7 +60,9 @@ public class PostActivity extends AppCompatActivity {
     ImageCapture imageCapture;
     File outputDirectory;
     ExecutorService cameraExecutor;
+    TextView Description;
     File image;
+    int code;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,6 +76,15 @@ public class PostActivity extends AppCompatActivity {
         this.pvImage = findViewById(R.id.pvImage);
         this.ivImage = findViewById(R.id.ivImage);
         this.loading = findViewById(R.id.loading);
+        this.Description = findViewById(R.id.Description);
+
+        // Get intent if we want to update ProfilePicture
+        Intent intent = getIntent();
+        this.code = intent.getIntExtra("code", 0);
+        if( this.code != 0 ) {
+            this.etDescription.setVisibility(View.GONE);
+            this.Description.setText("New profile picture");
+        }
 
         // Listener to submit the post
         this.btnPost.setOnClickListener(new View.OnClickListener() {
@@ -80,17 +94,49 @@ public class PostActivity extends AppCompatActivity {
                 btnPost.setVisibility(View.GONE);
                 loading.setVisibility(View.VISIBLE);
 
-                String description = etDescription.getText().toString();
-                if(description.isEmpty()) {
-                    Toast.makeText(PostActivity.this, "Description can't be empty", Toast.LENGTH_SHORT).show();
-                    return;
+                if( code == 0 ) {
+                    String description = etDescription.getText().toString();
+                    if(description.isEmpty()) {
+                        Toast.makeText(PostActivity.this, "Description can't be empty", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    if(image == null || ivImage.getDrawable() == null) {
+                        Toast.makeText(PostActivity.this, "You need to take an image", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    ParseUser user = ParseUser.getCurrentUser();
+                    post(user, description, image);
+                } else {
+                    if(image == null || ivImage.getDrawable() == null) {
+                        Toast.makeText(PostActivity.this, "You need to take an image", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    ParseUser user = ParseUser.getCurrentUser();
+                    user.put("picture", new ParseFile(image));
+                    user.saveInBackground(new SaveCallback() {
+                        @Override
+                        public void done(ParseException e) {
+                            btnPost.setVisibility(View.VISIBLE);
+                            loading.setVisibility(View.GONE);
+
+                            if( e != null ) {
+                                Log.e(TAG, "Error while saving", e);
+                                Toast.makeText(PostActivity.this, "Could not save picture", Toast.LENGTH_SHORT).show();
+
+
+                            } else {
+                                Toast.makeText(PostActivity.this, "Nice picture!", Toast.LENGTH_SHORT).show();
+                                etDescription.setText("");
+                                ivImage.setImageResource(0);
+                                ivImage.setVisibility(View.GONE);
+                                btnAddImage.setVisibility(View.VISIBLE);
+                                pvImage.setVisibility(View.VISIBLE);
+                                finish();
+                            }
+                        }
+                    });
                 }
-                if(image == null || ivImage.getDrawable() == null) {
-                    Toast.makeText(PostActivity.this, "You need to take an image", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                ParseUser user = ParseUser.getCurrentUser();
-                post(user, description, image);
+
             }
         });
 
