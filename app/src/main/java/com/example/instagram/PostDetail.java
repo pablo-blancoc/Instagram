@@ -2,7 +2,9 @@ package com.example.instagram;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.content.Intent;
 import android.graphics.Color;
@@ -29,6 +31,7 @@ import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -44,6 +47,8 @@ public class PostDetail extends AppCompatActivity {
     TextView tvTimestamp;
     ProgressBar loading;
     Post post;
+    List<Comment> comments;
+    CommentAdapter adapter;
     private TextView tvHandle;
     private TextView tvLikeCount;
     private ImageView ivUserProfile;
@@ -55,11 +60,28 @@ public class PostDetail extends AppCompatActivity {
     private RelativeLayout rlComment;
     private EditText etComment;
     private Button btnPostComment;
+    private SwipeRefreshLayout swipeContainer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_post_detail);
+
+        // Swipe to load more comments
+        // Set up swipeContainer
+        this.swipeContainer = findViewById(R.id.swipeContainer);
+        swipeContainer.setColorSchemeResources(android.R.color.holo_blue_bright,
+                android.R.color.holo_green_light,
+                android.R.color.holo_orange_light,
+                android.R.color.holo_red_light);
+        this.swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                comments.clear();
+                queryComments();
+                swipeContainer.setRefreshing(false);
+            }
+        });
 
         // Find items on View
         this.tvUserName = findViewById(R.id.tvUserName);
@@ -80,6 +102,12 @@ public class PostDetail extends AppCompatActivity {
         this.btnPostComment = findViewById(R.id.btnPostComment);
 
 
+        // Set comments and adapter
+        this.comments = new ArrayList<>();
+        this.adapter = new CommentAdapter(this, this.comments);
+        this.rvComments.setAdapter(this.adapter);
+        this.rvComments.setLayoutManager(new LinearLayoutManager(this));
+
         Intent intent = getIntent();
         String objectId = intent.getStringExtra("postId");
         if(objectId == null) {
@@ -88,6 +116,25 @@ public class PostDetail extends AppCompatActivity {
         }
 
         this.loadInformation(objectId);
+    }
+
+    private void queryComments() {
+        ParseQuery<Comment> q = ParseQuery.getQuery(Comment.class);
+        q.include(Comment.KEY_USER);
+        q.orderByDescending("createdAt");
+        q.whereEqualTo("post", post);
+        q.findInBackground(new FindCallback<Comment>() {
+            @Override
+            public void done(List<Comment> _comments, ParseException e) {
+                if( e == null ) {
+                    comments.addAll(_comments);
+                    adapter.notifyDataSetChanged();
+                } else {
+                    Toast.makeText(PostDetail.this, "Could not retrieve comments", Toast.LENGTH_SHORT).show();
+                    Log.e(TAG, "Error getting comments", e);
+                }
+            }
+        });
     }
 
     private void loadInformation(String objectId) {
@@ -290,6 +337,9 @@ public class PostDetail extends AppCompatActivity {
                 });
             }
         });
+
+        // Query and load all comments
+        queryComments();
     }
 
     private void onStartLoading() {
