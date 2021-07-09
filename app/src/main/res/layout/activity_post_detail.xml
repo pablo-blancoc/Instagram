@@ -3,7 +3,7 @@
 xmlns:app="http://schemas.android.com/apk/res-auto"
 xmlns:tools="http://schemas.android.com/tools"
 android:layout_width="match_parent"
-android:layout_height="wrap_content"
+android:layout_height="match_parent"
 android:paddingBottom="20dp">
 
     <ImageView
@@ -120,5 +120,35 @@ android:paddingBottom="20dp">
         android:indeterminateTint="@color/black"
         android:visibility="gone"
         android:layout_below="@id/tvDescription" />
+
+    <RelativeLayout
+        android:id="@+id/rlComment"
+        android:layout_below="@id/btnLike"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:visibility="gone" >
+
+        <EditText
+            android:id="@+id/etComment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toStartOf="@id/btnPostComment"/>
+
+        <Button
+            android:id="@+id/btnPostComment"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:text="@string/POST"
+            android:textSize="12sp"
+            android:layout_alignParentEnd="true"/>
+
+    </RelativeLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvComments"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/btnLike"
+        android:layout_marginTop="5dp" />
 
 </RelativeLayout>

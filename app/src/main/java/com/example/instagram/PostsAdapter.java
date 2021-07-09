@@ -8,8 +8,12 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
@@ -71,6 +75,9 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
         private ImageView btnComment;
         private ImageView btnShare;
         private ImageView btnSave;
+        private RelativeLayout rlComment;
+        private EditText etComment;
+        private Button btnPostComment;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -86,6 +93,9 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
             this.btnComment = itemView.findViewById(R.id.btnComment);
             this.btnShare = itemView.findViewById(R.id.btnShare);
             this.btnSave = itemView.findViewById(R.id.btnSave);
+            this.rlComment = itemView.findViewById(R.id.rlComment);
+            this.etComment = itemView.findViewById(R.id.etComment);
+            this.btnPostComment = itemView.findViewById(R.id.btnPostComment);
         }
 
         public void bind(Post post) {
@@ -254,6 +264,41 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
                 @Override
                 public void onClick(View v) {
                     goToProfile(post.getUser().getObjectId());
+                }
+            });
+
+
+            // Click on comment
+            this.btnComment.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    rlComment.setVisibility(View.VISIBLE);
+                }
+            });
+
+            // Click on post comment
+            this.btnPostComment.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    String text = etComment.getText().toString();
+                    if( text.isEmpty() ) {
+                        Toast.makeText(context, "Comment cannot be empty", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    ParseObject comment = new ParseObject("Comment");
+                    comment.put("user", ParseUser.getCurrentUser());
+                    comment.put("post", post);
+                    comment.put("text", text);
+                    comment.saveInBackground(new SaveCallback() {
+                        @Override
+                        public void done(ParseException e) {
+                            if( e == null ) {
+                                rlComment.setVisibility(View.GONE);
+                            } else {
+                                Toast.makeText(context, "Error while posting comment", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
                 }
             });
 

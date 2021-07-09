@@ -102,4 +102,29 @@
         android:layout_marginEnd="10dp"
         app:srcCompat="@drawable/ufi_save" />
 
+    <RelativeLayout
+        android:id="@+id/rlComment"
+        android:layout_below="@id/btnLike"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:visibility="gone" >
+
+        <EditText
+            android:id="@+id/etComment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toStartOf="@id/btnPostComment"/>
+
+        <Button
+            android:id="@+id/btnPostComment"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:text="@string/POST"
+            android:textSize="12sp"
+            android:layout_alignParentEnd="true"/>
+
+
+    </RelativeLayout>
+
+
 </RelativeLayout>
