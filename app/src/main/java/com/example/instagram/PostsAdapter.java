@@ -236,6 +236,27 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
                     onDetail(post.getObjectId());
                 }
             });
+
+            // Listeners to go to profile activity
+            this.tvHandle.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    goToProfile(post.getUser().getObjectId());
+                }
+            });
+            this.ivUserProfile.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    goToProfile(post.getUser().getObjectId());
+                }
+            });
+            this.tvUserName.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    goToProfile(post.getUser().getObjectId());
+                }
+            });
+
         }
 
         /**
@@ -247,5 +268,11 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
             intent.putExtra("postId", post);
             context.startActivity(intent);
         }
+    }
+
+    private void goToProfile(String id) {
+        Intent intent = new Intent(context, ProfileActivity.class);
+        intent.putExtra("id", id);
+        context.startActivity(intent);
     }
 }
