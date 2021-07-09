@@ -197,8 +197,8 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
 
             // Bind the post data to the view elements
             tvDescription.setText(post.getDescription());
-            tvUserName.setText(post.getUser().getUsername());
-            tvHandle.setText(String.format("@%s", post.getUser().get("handle").toString()));
+            tvHandle.setText(String.format("@%s", post.getUser().getUsername()));
+            tvUserName.setText(post.getUser().get("handle").toString());
             tvLikeCount.setText(String.format("%d likes", post.getLikeCount()));
             ParseFile profile = (ParseFile) post.getUser().get("picture");
             ParseFile image = post.getImage();
